@@ -40,8 +40,8 @@ public class LongTriplet implements Comparable<LongTriplet> {
     }
 
     public int compareTo(LongTriplet longPair) {
-        if (getFirst() == longPair.getFirst()) {
-            if (getSecond() == longPair.getSecond()) {
+        if (getFirst().equals(longPair.getFirst())) {
+            if (getSecond().equals(longPair.getSecond())) {
                 return getThird().compareTo(longPair.getThird());
             }
             return getSecond().compareTo(longPair.getSecond());

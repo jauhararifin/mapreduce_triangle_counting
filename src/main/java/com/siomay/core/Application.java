@@ -1,6 +1,7 @@
 package com.siomay.core;
 
 import com.siomay.utils.LongPairWritable;
+import com.siomay.utils.LongTriplet;
 import com.siomay.utils.LongTripletWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -49,13 +50,13 @@ public class Application {
         job.setInputFormatClass(TextInputFormat.class);
         FileInputFormat.addInputPath(job, new Path(this.inputPath));
         job.setMapperClass(Mapper1.class);
-        job.setMapOutputKeyClass(LongWritable.class);
+        job.setMapOutputKeyClass(LongPairWritable.class);
         job.setMapOutputValueClass(LongWritable.class);
 
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp"));
         job.setReducerClass(Reducer1.class);
-        job.setOutputKeyClass(LongWritable.class);
+        job.setOutputKeyClass(LongPairWritable.class);
         job.setOutputValueClass(LongPairWritable.class);
 
         job.waitForCompletion(true);
@@ -74,7 +75,7 @@ public class Application {
         job.setInputFormatClass(SequenceFileInputFormat.class);
         SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp"));
         job.setMapperClass(Mapper2.class);
-        job.setMapOutputKeyClass(LongPairWritable.class);
+        job.setMapOutputKeyClass(LongTripletWritable.class);
         job.setMapOutputValueClass(LongWritable.class);
 
         job.setOutputFormatClass(SequenceFileOutputFormat.class);

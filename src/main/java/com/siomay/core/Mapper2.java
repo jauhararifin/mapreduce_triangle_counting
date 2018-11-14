@@ -1,32 +1,41 @@
 package com.siomay.core;
 
-import com.siomay.utils.LongPair;
 import com.siomay.utils.LongPairWritable;
+import com.siomay.utils.LongTriplet;
+import com.siomay.utils.LongTripletWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class Mapper2 extends Mapper<LongWritable, LongPairWritable, LongPairWritable, LongWritable> {
+public class Mapper2 extends Mapper<LongPairWritable, LongPairWritable, LongTripletWritable, LongWritable> {
 
     @Override
-    protected void map(LongWritable key, LongPairWritable value, Context context) throws IOException, InterruptedException {
-        context.write(value, key);
+    protected void map(LongPairWritable key, LongPairWritable value, Context context) throws IOException, InterruptedException {
+        context.write(
+                new LongTripletWritable(
+                        new LongTriplet(
+                                key.get().getFirst(),
+                                value.get().getFirst(),
+                                value.get().getSecond()
+                        )
+                ), new LongWritable(key.get().getSecond())
+        );
 
-        context.write(new LongPairWritable(
-                new LongPair(value.get().getFirst(), key.get())
+        context.write(new LongTripletWritable(
+                new LongTriplet(key.get().getFirst(), value.get().getFirst(), key.get().getSecond())
         ), new LongWritable(-1));
 
-        context.write(new LongPairWritable(
-                new LongPair(key.get(), value.get().getFirst())
+        context.write(new LongTripletWritable(
+                new LongTriplet(key.get().getFirst(), key.get().getSecond(), value.get().getFirst())
         ), new LongWritable(-1));
 
-        context.write(new LongPairWritable(
-                new LongPair(value.get().getSecond(), key.get())
+        context.write(new LongTripletWritable(
+                new LongTriplet(key.get().getFirst(), value.get().getSecond(), key.get().getSecond())
         ), new LongWritable(-1));
 
-        context.write(new LongPairWritable(
-                new LongPair(key.get(), value.get().getSecond())
+        context.write(new LongTripletWritable(
+                new LongTriplet(key.get().getFirst(), key.get().getSecond(), value.get().getSecond())
         ), new LongWritable(-1));
     }
 

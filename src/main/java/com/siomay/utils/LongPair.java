@@ -30,7 +30,7 @@ public class LongPair implements Comparable<LongPair> {
     }
 
     public int compareTo(LongPair longPair) {
-        if (getFirst() == longPair.getFirst()) {
+        if (getFirst().equals(longPair.getFirst())) {
             return getSecond().compareTo(longPair.getSecond());
         }
         return getFirst().compareTo(longPair.getFirst());
