@@ -1,37 +1,33 @@
 package com.siomay.core;
 
 import com.siomay.utils.LongPair;
-import com.siomay.utils.LongPairArrayWritable;
 import com.siomay.utils.LongPairWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Mapper;
 
 import java.io.IOException;
 
-public class Mapper2 extends Mapper<LongWritable, LongPairArrayWritable, LongPairWritable, LongWritable> {
+public class Mapper2 extends Mapper<LongWritable, LongPairWritable, LongPairWritable, LongWritable> {
 
     @Override
-    protected void map(LongWritable key, LongPairArrayWritable value, Context context) throws IOException, InterruptedException {
-        LongPair[] inputArr = value.getLongPairs();
-        for (LongPair pair : inputArr) {
-            context.write(new LongPairWritable(pair), key);
+    protected void map(LongWritable key, LongPairWritable value, Context context) throws IOException, InterruptedException {
+        context.write(value, key);
 
-            context.write(new LongPairWritable(
-                    new LongPair(pair.getFirst(), key.get())
-            ), new LongWritable(-1));
+        context.write(new LongPairWritable(
+                new LongPair(value.get().getFirst(), key.get())
+        ), new LongWritable(-1));
 
-            context.write(new LongPairWritable(
-                    new LongPair(key.get(), pair.getFirst())
-            ), new LongWritable(-1));
+        context.write(new LongPairWritable(
+                new LongPair(key.get(), value.get().getFirst())
+        ), new LongWritable(-1));
 
-            context.write(new LongPairWritable(
-                    new LongPair(pair.getSecond(), key.get())
-            ), new LongWritable(-1));
+        context.write(new LongPairWritable(
+                new LongPair(value.get().getSecond(), key.get())
+        ), new LongWritable(-1));
 
-            context.write(new LongPairWritable(
-                    new LongPair(key.get(), pair.getSecond())
-            ), new LongWritable(-1));
-        }
+        context.write(new LongPairWritable(
+                new LongPair(key.get(), value.get().getSecond())
+        ), new LongWritable(-1));
     }
 
 }

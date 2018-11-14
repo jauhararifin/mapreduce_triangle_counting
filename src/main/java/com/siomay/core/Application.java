@@ -1,7 +1,7 @@
 package com.siomay.core;
 
-import com.siomay.utils.LongPairArrayWritable;
 import com.siomay.utils.LongPairWritable;
+import com.siomay.utils.LongTripletWritable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -56,7 +56,7 @@ public class Application {
         SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp"));
         job.setReducerClass(Reducer1.class);
         job.setOutputKeyClass(LongWritable.class);
-        job.setOutputValueClass(LongPairArrayWritable.class);
+        job.setOutputValueClass(LongPairWritable.class);
 
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
@@ -80,8 +80,8 @@ public class Application {
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp2"));
         job.setReducerClass(Reducer2.class);
-        job.setOutputKeyClass(LongPairWritable.class);
-        job.setOutputValueClass(LongWritable.class);
+        job.setOutputKeyClass(LongTripletWritable.class);
+        job.setOutputValueClass(NullWritable.class);
 
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
@@ -99,9 +99,8 @@ public class Application {
         job.setInputFormatClass(SequenceFileInputFormat.class);
         SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp2"));
         job.setMapperClass(CountMapper.class);
-        job.setCombinerClass(CountReducer.class);
-        job.setMapOutputKeyClass(NullWritable.class);
-        job.setMapOutputValueClass(LongWritable.class);
+        job.setMapOutputKeyClass(LongTripletWritable.class);
+        job.setMapOutputValueClass(NullWritable.class);
 
         job.setOutputFormatClass(TextOutputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/final"));
@@ -159,10 +158,7 @@ public class Application {
 
         FSDataOutputStream os = getFS().create(new Path(this.outputPath + "/result.txt"));
         os.writeChars("counted triangle: " + nTriangle + "\n");
-        os.writeChars("real triangle: " + (nTriangle / 6) + "\n");
-
         System.out.println("counted triangle: " + nTriangle);
-        System.out.println("real triangle: " + (nTriangle / 6));
     }
 
     public static void main(String[] args) throws IOException {
