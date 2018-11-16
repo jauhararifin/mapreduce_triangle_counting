@@ -13,6 +13,10 @@ public class LongPairWritable implements WritableComparable<LongPairWritable> {
     public LongPairWritable() {
     }
 
+    public LongPairWritable(Long first, Long second) {
+        value = new LongPair(first, second);
+    }
+
     public LongPairWritable(LongPair value) {
         this.value = value;
     }
@@ -23,6 +27,22 @@ public class LongPairWritable implements WritableComparable<LongPairWritable> {
 
     public void set(LongPair value) {
         this.value = value;
+    }
+
+    public Long getFirst() {
+        return value.getFirst();
+    }
+
+    public void setFirst(Long first) {
+        value.setFirst(first);
+    }
+
+    public Long getSecond() {
+        return value.getSecond();
+    }
+
+    public void setSecond(Long second) {
+        value.setSecond(second);
     }
 
     public void write(DataOutput dataOutput) throws IOException {

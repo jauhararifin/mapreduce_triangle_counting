@@ -1,39 +1,41 @@
-package com.siomay.core;
+package com.siomay;
 
-import com.siomay.utils.LongPairWritable;
-import com.siomay.utils.LongTriplet;
-import com.siomay.utils.LongTripletWritable;
+import com.siomay.core.EdgeInputFormat;
+import com.siomay.core.NodeIteratorCounterJob;
+import com.siomay.core.NodeIteratorFirstJob;
+import com.siomay.core.NodeIteratorSecondJob;
+import com.sun.org.apache.xpath.internal.operations.Mult;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 import java.util.Scanner;
 
-public class Application {
+public class TriangleCounter {
+
+    private Configuration conf = new Configuration();
 
     private String inputPath;
     private String outputPath;
     private FileSystem fileSystem;
 
-    public Application(String inputPath, String outputPath) {
+    public TriangleCounter(String inputPath, String outputPath) {
         this.inputPath = inputPath;
         this.outputPath = outputPath;
     }
 
     private FileSystem getFS() throws IOException {
         if (fileSystem == null) {
-            fileSystem = FileSystem.get(new Configuration());
+            fileSystem = FileSystem.get(conf);
         }
         return fileSystem;
     }
@@ -43,21 +45,13 @@ public class Application {
     }
 
     private void runJob1() throws IOException, ClassNotFoundException, InterruptedException {
-        Job job = new Job();
-        job.setJarByClass(Application.class);
-        job.setJobName("siomay.job1");
+        Job job = new NodeIteratorFirstJob(conf);
+        job.setJobName("siomay.nodeIteratorFirst");
 
-        job.setInputFormatClass(TextInputFormat.class);
-        FileInputFormat.addInputPath(job, new Path(this.inputPath));
-        job.setMapperClass(Mapper1.class);
-        job.setMapOutputKeyClass(LongPairWritable.class);
-        job.setMapOutputValueClass(LongWritable.class);
-
-        job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        EdgeInputFormat.addInputPath(job, new Path(this.inputPath));
+        job.setInputFormatClass(EdgeInputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp"));
-        job.setReducerClass(Reducer1.class);
-        job.setOutputKeyClass(LongPairWritable.class);
-        job.setOutputValueClass(LongPairWritable.class);
+        job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
@@ -68,21 +62,14 @@ public class Application {
     }
 
     private void runJob2() throws IOException, ClassNotFoundException, InterruptedException {
-        Job job = new Job();
-        job.setJarByClass(Application.class);
-        job.setJobName("siomay.job2");
+        Job job = new NodeIteratorSecondJob(conf);
+        job.setJobName("siomay.nodeIteratorSecond");
 
-        job.setInputFormatClass(SequenceFileInputFormat.class);
-        SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp"));
-        job.setMapperClass(Mapper2.class);
-        job.setMapOutputKeyClass(LongTripletWritable.class);
-        job.setMapOutputValueClass(LongWritable.class);
+        MultipleInputs.addInputPath(job, new Path(this.outputPath + "/temp"), SequenceFileInputFormat.class);
+        MultipleInputs.addInputPath(job, new Path(this.inputPath), EdgeInputFormat.class);
 
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
         SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp2"));
-        job.setReducerClass(Reducer2.class);
-        job.setOutputKeyClass(LongTripletWritable.class);
-        job.setOutputValueClass(NullWritable.class);
 
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
@@ -93,21 +80,13 @@ public class Application {
     }
 
     private void runFinalCounter() throws IOException, ClassNotFoundException, InterruptedException {
-        Job job = new Job();
-        job.setJarByClass(Application.class);
-        job.setJobName("siomay.finalCounter");
+        Job job = new NodeIteratorCounterJob(conf);
+        job.setJobName("siomay.nodeIteratorCounter");
 
-        job.setInputFormatClass(SequenceFileInputFormat.class);
         SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp2"));
-        job.setMapperClass(CountMapper.class);
-        job.setMapOutputKeyClass(LongTripletWritable.class);
-        job.setMapOutputValueClass(NullWritable.class);
-
+        job.setInputFormatClass(SequenceFileInputFormat.class);
+        TextOutputFormat.setOutputPath(job, new Path(this.outputPath + "/final"));
         job.setOutputFormatClass(TextOutputFormat.class);
-        SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/final"));
-        job.setReducerClass(CountReducer.class);
-        job.setOutputKeyClass(NullWritable.class);
-        job.setOutputValueClass(LongWritable.class);
 
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
@@ -168,7 +147,7 @@ public class Application {
             System.exit(-1);
         }
 
-        Application app = new Application(args[0], args[1]);
+        TriangleCounter app = new TriangleCounter(args[0], args[1]);
         app.run();
     }
 
