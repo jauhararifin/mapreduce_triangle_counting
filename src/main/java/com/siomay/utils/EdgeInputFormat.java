@@ -1,7 +1,5 @@
-package com.siomay.core;
+package com.siomay.utils;
 
-import com.siomay.utils.LongPair;
-import com.siomay.utils.LongPairWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.InputSplit;

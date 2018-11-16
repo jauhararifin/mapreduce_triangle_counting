@@ -1,4 +1,4 @@
-package com.siomay.core;
+package com.siomay.nodeiterator;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.LongWritable;
