@@ -30,13 +30,26 @@ public class CombineGraphJob extends Job {
     }
 
     public static class Reduce extends Reducer<LongWritable, LongWritable, NullWritable, LongWritable> {
+
+        private long numTriangle = 0L;
+
+        @Override
+        protected void setup(Context context) {
+            numTriangle = 0L;
+        }
+
         @Override
         protected void reduce(LongWritable key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
             long sum = 0;
             for (LongWritable val : values) {
                 sum += val.get();
             }
-            context.write(NullWritable.get(), new LongWritable(sum / key.get()));
+            numTriangle += sum / key.get();
+        }
+
+        @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            context.write(NullWritable.get(), new LongWritable(numTriangle));
         }
     }
 

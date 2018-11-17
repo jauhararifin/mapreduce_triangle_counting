@@ -45,7 +45,7 @@ public class GraphPartitionTriangleCounter {
 
         EdgeInputFormat.addInputPath(job, new Path(this.inputPath));
         job.setInputFormatClass(EdgeInputFormat.class);
-        SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp1"));
+        SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp"));
         job.setOutputFormatClass(SequenceFileOutputFormat.class);
 
         job.waitForCompletion(true);
@@ -58,12 +58,12 @@ public class GraphPartitionTriangleCounter {
 
     private void runJob2() throws IOException, ClassNotFoundException, InterruptedException {
         Job job = new CombineGraphJob(conf);
-        job.setJobName("siomay.graphPartition.job1");
+        job.setJobName("siomay.graphPartition.job2");
 
-        SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp1"));
+        SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp"));
         job.setInputFormatClass(SequenceFileInputFormat.class);
-        SequenceFileOutputFormat.setOutputPath(job, new Path(this.outputPath + "/temp2"));
-        job.setOutputFormatClass(SequenceFileOutputFormat.class);
+        TextOutputFormat.setOutputPath(job, new Path(this.outputPath + "/final"));
+        job.setOutputFormatClass(TextOutputFormat.class);
 
         job.waitForCompletion(true);
         if (!job.isSuccessful()) {
@@ -71,23 +71,6 @@ public class GraphPartitionTriangleCounter {
             System.exit(-1);
         }
         System.out.println("Job 2 Completed");
-    }
-
-    private void runFinalCounter() throws IOException, ClassNotFoundException, InterruptedException {
-        Job job = new TriangleCounterJob(conf);
-        job.setJobName("siomay.graphPartition.job3");
-
-        SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp2"));
-        job.setInputFormatClass(SequenceFileInputFormat.class);
-        TextOutputFormat.setOutputPath(job, new Path(this.outputPath + "/final"));
-        job.setOutputFormatClass(TextOutputFormat.class);
-
-        job.waitForCompletion(true);
-        if (!job.isSuccessful()) {
-            System.out.println("Final Job Counter Failed");
-            System.exit(-1);
-        }
-        System.out.println("Final Job Counter Completed");
     }
 
     public void run() throws IOException {
@@ -111,14 +94,6 @@ public class GraphPartitionTriangleCounter {
             runJob2();
         } catch (Exception e) {
             System.out.println("Caught error when running job 1");
-            e.printStackTrace();
-            System.exit(-1);
-        }
-
-        try {
-            runFinalCounter();
-        } catch (Exception e) {
-            System.out.println("Caught error when running final counter job");
             e.printStackTrace();
             System.exit(-1);
         }
