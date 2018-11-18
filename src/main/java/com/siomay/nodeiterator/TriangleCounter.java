@@ -41,6 +41,7 @@ public class TriangleCounter {
 
     private void runJob1() throws IOException, ClassNotFoundException, InterruptedException {
         Job job = new NodeIteratorFirstJob(conf);
+        job.setJarByClass(TriangleCounter.class);
         job.setJobName("siomay.nodeIteratorFirst");
 
         EdgeInputFormat.addInputPath(job, new Path(this.inputPath));
@@ -58,6 +59,7 @@ public class TriangleCounter {
 
     private void runJob2() throws IOException, ClassNotFoundException, InterruptedException {
         Job job = new NodeIteratorSecondJob(conf);
+        job.setJarByClass(TriangleCounter.class);
         job.setJobName("siomay.nodeIteratorSecond");
 
         MultipleInputs.addInputPath(job, new Path(this.outputPath + "/temp"), SequenceFileInputFormat.class);
@@ -76,6 +78,7 @@ public class TriangleCounter {
 
     private void runFinalCounter() throws IOException, ClassNotFoundException, InterruptedException {
         Job job = new NodeIteratorCounterJob(conf);
+        job.setJarByClass(TriangleCounter.class);
         job.setJobName("siomay.nodeIteratorCounter");
 
         SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp2"));

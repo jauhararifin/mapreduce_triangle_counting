@@ -50,7 +50,7 @@ public class NodeIteratorFirstJob extends Job {
 
     private void setup() {
         setMapperClass(Map.class);
-        setNumReduceTasks(1140);
+        setNumReduceTasks(20);
         setMapOutputKeyClass(LongWritable.class);
         setMapOutputValueClass(LongWritable.class);
         setReducerClass(Reduce.class);

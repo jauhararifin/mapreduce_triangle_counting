@@ -9,8 +9,6 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -32,21 +30,19 @@ public class NodeIteratorSecondJob extends Job {
         @Override
         protected void reduce(LongPairWritable key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
             boolean connected = false;
-            Set<Long> visited = new HashSet<>();
+            long nTriangle = 0;
             for (LongWritable val : values) {
                 long v = val.get();
-                visited.add(v);
                 if (v == -1) {
                     connected = true;
+                } else {
+                    nTriangle++;
                 }
             }
 
             if (connected) {
-                context.write(NullWritable.get(), new LongWritable(visited.size() - 1));
+                context.write(NullWritable.get(), new LongWritable(nTriangle));
             }
-
-            visited.clear();
-            System.gc();
         }
     }
 

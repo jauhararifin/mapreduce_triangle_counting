@@ -31,6 +31,7 @@ public class NodeIteratorCounterJob extends Job {
 
     private void setup() {
         setMapperClass(Map.class);
+        setNumReduceTasks(1);
         setMapOutputKeyClass(NullWritable.class);
         setMapOutputValueClass(LongWritable.class);
         setCombinerClass(Reduce.class);

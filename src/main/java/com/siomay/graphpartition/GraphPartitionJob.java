@@ -87,6 +87,9 @@ public class GraphPartitionJob extends Job {
                     }
                 }
             }
+
+            adjlist.clear();
+            System.gc();
         }
     }
 

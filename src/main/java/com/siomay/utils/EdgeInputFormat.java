@@ -24,25 +24,32 @@ public class EdgeInputFormat extends FileInputFormat<LongWritable, LongPairWrita
         private Long key;
         private LongPair value;
 
-        public EdgeRecordReader() throws IOException {
+        public EdgeRecordReader() {
             this.lineRecordReader = new LineRecordReader();
         }
 
         @Override
-        public void initialize(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) throws IOException, InterruptedException {
+        public void initialize(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) throws IOException {
             lineRecordReader.initialize(inputSplit, taskAttemptContext);
         }
 
         @Override
-        public boolean nextKeyValue() throws IOException, InterruptedException {
+        public boolean nextKeyValue() throws IOException {
             boolean result = lineRecordReader.nextKeyValue();
             while (result) {
                 Text text = lineRecordReader.getCurrentValue();
                 String str = text.toString();
                 if (str.contains("\t")) {
                     StringTokenizer tokeniner = new StringTokenizer(str);
-                    Long idA = Long.parseLong(tokeniner.nextToken());
-                    Long idB = Long.parseLong(tokeniner.nextToken());
+                    Long idA = 0L;
+                    Long idB = 0L;
+                    try {
+                        idA = Long.parseLong(tokeniner.nextToken());
+                        idB = Long.parseLong(tokeniner.nextToken());
+                    } catch (Exception e) {
+                        result = lineRecordReader.nextKeyValue();
+                        continue;
+                    }
                     value = new LongPair(idA, idB);
                     break;
                 } else {
@@ -53,17 +60,17 @@ public class EdgeInputFormat extends FileInputFormat<LongWritable, LongPairWrita
         }
 
         @Override
-        public LongWritable getCurrentKey() throws IOException, InterruptedException {
+        public LongWritable getCurrentKey() {
             return new LongWritable(-1);
         }
 
         @Override
-        public LongPairWritable getCurrentValue() throws IOException, InterruptedException {
+        public LongPairWritable getCurrentValue() {
             return new LongPairWritable(value);
         }
 
         @Override
-        public float getProgress() throws IOException, InterruptedException {
+        public float getProgress() throws IOException {
             return lineRecordReader.getProgress();
         }
 

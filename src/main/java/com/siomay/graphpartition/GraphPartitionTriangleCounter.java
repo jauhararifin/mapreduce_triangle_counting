@@ -7,7 +7,6 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.input.MultipleInputs;
 import org.apache.hadoop.mapreduce.lib.input.SequenceFileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.SequenceFileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -41,6 +40,7 @@ public class GraphPartitionTriangleCounter {
 
     private void runJob1() throws IOException, ClassNotFoundException, InterruptedException {
         Job job = new GraphPartitionJob(conf);
+        job.setJarByClass(GraphPartitionTriangleCounter.class);
         job.setJobName("siomay.graphPartition.job1");
 
         EdgeInputFormat.addInputPath(job, new Path(this.inputPath));
@@ -58,6 +58,7 @@ public class GraphPartitionTriangleCounter {
 
     private void runJob2() throws IOException, ClassNotFoundException, InterruptedException {
         Job job = new CombineGraphJob(conf);
+        job.setJarByClass(GraphPartitionTriangleCounter.class);
         job.setJobName("siomay.graphPartition.job2");
 
         SequenceFileInputFormat.addInputPath(job, new Path(this.outputPath + "/temp"));
